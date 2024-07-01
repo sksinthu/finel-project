@@ -1,0 +1,56 @@
+.card {
+    width: 18rem;
+    max-height: auto;
+    border: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  .card-body {
+    text-align: center;
+  }
+  
+  .card-img-top {
+    height: 150px;
+    object-fit: cover;
+    margin-bottom: 15px;
+  }
+  
+  .form-select {
+    width: 100%;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+  }
+  
+  .mb-3 {
+    margin-bottom: 15px;
+  }
+  
+  .fw-bold {
+    font-weight: bold;
+  }
+  
+  .btn-danger {
+    width: 100%;
+    padding: 10px;
+    background-color: #dc3545;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .btn-danger:hover {
+    background-color: #c82333;
+  }
+  
+  .d-flex {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .form-label {
+    width: 50%;
+    margin-right: 10px;
+  }
+  
+  
