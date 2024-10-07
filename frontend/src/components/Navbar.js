@@ -22,6 +22,8 @@ export default function Navbar(props) {
   };
 
   const items = useCart();
+
+  
   return (
     <div>
       <nav
@@ -51,7 +53,7 @@ export default function Navbar(props) {
             <span className="navbar-toggler-icon"></span>
           </button>
           <div className="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul className="navbar-nav me-auto mb-2 mb-lg-0">
+            <ul className="navbar-nav me-auto mb-2 mb-lg-0" >
               <li className="nav-item">
                 <Link
                   className="nav-link fs-5 mx-3 active"

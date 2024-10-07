@@ -1,8 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatchCart, useCart } from "./ContextReducer";
-// import { Dropdown, DropdownButton } from 'react-bootstrap';
-import "../css/card.module.css";
+
 export default function Card(props) {
   let data = useCart();
   let navigate = useNavigate();
@@ -29,6 +28,12 @@ export default function Card(props) {
   };
 
   const handleAddToCart = async () => {
+    // Check if the category is locked (other category selected)
+    if (props.isCategoryLocked) {
+      alert("You can only order from the selected category. Please deselect the current category to choose another.");
+      return;
+    }
+
     let food = [];
     for (const item of data) {
       if (item.id === foodItem._id) {
@@ -95,14 +100,6 @@ export default function Card(props) {
           alt="..."
           style={{ height: "150px", objectFit: "cover", marginBottom: "15px" }}
         />
-        {/* <div className="d-flex justify-content-around align-items-center mb-3">
-          <div>
-            <label>Quantity</label>
-          </div>
-          <div>
-            <label>Varients</label>
-          </div>
-        </div> */}
         <div className="d-flex justify-content-center align-items-center mb-3">
           <select
             className="form-select me-2"
@@ -138,7 +135,11 @@ export default function Card(props) {
         <div className="mb-3">
           <span className="fw-bold">Price: ₹{finalPrice}/-</span>
         </div>
-        <button className="btn btn-success w-100" onClick={handleAddToCart}>
+        <button
+          className="btn btn-success w-100"
+          onClick={handleAddToCart}
+          disabled={props.isCategoryLocked} // Disable add to cart if category is locked
+        >
           ADD TO CART
         </button>
       </div>

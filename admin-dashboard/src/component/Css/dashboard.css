@@ -1,0 +1,32 @@
+/* src/styles/Dashboard.css */
+.dashboard-content {
+  margin-left: 240px;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.dashboard-content h2 {
+  font-size: 1.5rem;
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+table, th, td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+th {
+  background-color: #f4f4f4;
+  text-align: left;
+}
+
+tr:nth-child(even) {
+  background-color: #f9f9f9;
+}

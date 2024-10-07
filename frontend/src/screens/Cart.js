@@ -7,7 +7,7 @@ import image from "./../img/success.png";
 export default function Cart() {
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [showForm, setShowForm] = useState(false);
-  const [name, setName] = useState(""); // State for customer's name
+  const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
   const [phoneError, setPhoneError] = useState("");
@@ -26,9 +26,9 @@ export default function Cart() {
   const handleFormSubmit = async (event) => {
     event.preventDefault();
 
-    const phoneRegex = /^[0-9]{10}$/;
+    const phoneRegex = /^[0-9\s-]{10,15}$/;
     if (!phoneRegex.test(phone)) {
-      setPhoneError("Please enter a valid 10-digit phone number.");
+      setPhoneError("Please enter a valid phone number.");
       return;
     }
     setPhoneError("");
@@ -38,43 +38,39 @@ export default function Cart() {
     const orderDetails = data
       .map(
         (item, index) =>
-          `Item ${index + 1}:\nName: ${item.name}\nQuantity: ${
-            item.qty
-          }\nSize: ${item.size}\nAmount: ${item.qty * item.price}\n`
+          `Item ${index + 1}:\nName: ${item.name}\nCategory: ${item.category}\nQuantity: ${item.qty}\nSize: ${item.size}\nAmount: ${item.qty * item.price}\n`
       )
       .join("\n");
 
     const customerTemplateParams = {
       email: customer_email,
-      customer_name: name, // Pass the customer's name here
+      customer_name: name,
       message_html: `Order Details:\n\n${orderDetails}\nTotal Price: ${totalPrice}`,
     };
 
     const specialTemplateParams = {
       email: customer_email,
-      customer_name: name, // Also pass the customer's name here
+      customer_name: name,
       message_html: `Special Order Details:\n\n${orderDetails}\nTotal Price: ${totalPrice}\n\nCustomer Details:\nPhone Number: ${phone}\nAddress: ${address}`,
     };
 
     try {
-      const sendEmailCustomer = emailjs.send(
-        EMAILJS_SERVICE_ID,
-        EMAILJS_TEMPLATE_ID_DEFAULT,
-        customerTemplateParams,
-        EMAILJS_USER_ID
-      );
-      const sendEmailSpecial = emailjs.send(
-        EMAILJS_SERVICE_ID,
-        EMAILJS_TEMPLATE_ID_SPECIAL,
-        specialTemplateParams,
-        EMAILJS_USER_ID
-      );
+      await Promise.all([
+        emailjs.send(
+          EMAILJS_SERVICE_ID,
+          EMAILJS_TEMPLATE_ID_DEFAULT,
+          customerTemplateParams,
+          EMAILJS_USER_ID
+        ),
+        emailjs.send(
+          EMAILJS_SERVICE_ID,
+          EMAILJS_TEMPLATE_ID_SPECIAL,
+          specialTemplateParams,
+          EMAILJS_USER_ID
+        ),
+      ]);
 
-      await Promise.all([sendEmailCustomer, sendEmailSpecial]);
-
-      console.log("Emails sent successfully");
       setOrderPlaced(true);
-      
     } catch (error) {
       console.error("Email errors:", error);
     }
@@ -82,14 +78,12 @@ export default function Cart() {
     let userEmail = localStorage.getItem("userEmail");
     let response = await fetch("http://localhost:5000/api/auth/orderData", {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         order_data: data,
         email: userEmail,
-        order_date: new Date().toDateString()
-      })
+        order_date: new Date().toDateString(),
+      }),
     });
 
     if (response.status === 200) {
@@ -101,6 +95,8 @@ export default function Cart() {
     (total, food) => total + food.qty * food.price,
     0
   );
+
+  const userName = localStorage.getItem("userName");
 
   if (orderPlaced) {
     return (
@@ -122,9 +118,7 @@ export default function Cart() {
         <h1 className="text-success text-center mb-4">Delivery Information</h1>
         <form onSubmit={handleFormSubmit}>
           <div className="form-group">
-            <label className="text-white mb-2" htmlFor="name">
-              Name
-            </label>
+            <label className="text-white mb-2" htmlFor="name">Name</label>
             <input
               type="text"
               id="name"
@@ -136,9 +130,7 @@ export default function Cart() {
             />
           </div>
           <div className="form-group">
-            <label className="text-white mb-2" htmlFor="phone">
-              Phone Number
-            </label>
+            <label className="text-white mb-2" htmlFor="phone">Phone Number</label>
             <input
               type="text"
               id="phone"
@@ -148,12 +140,10 @@ export default function Cart() {
               placeholder="Phone Number"
               required
             />
-            {phoneError && <div className="text-danger ">{phoneError}</div>}
+            {phoneError && <div className="text-danger">{phoneError}</div>}
           </div>
           <div className="form-group">
-            <label className="text-white mb-2" htmlFor="address">
-              Delivery Address
-            </label>
+            <label className="text-white mb-2" htmlFor="address">Delivery Address</label>
             <input
               type="text"
               id="address"
@@ -164,9 +154,7 @@ export default function Cart() {
               required
             />
           </div>
-          <button type="submit" className="btn btn-success">
-            Submit Order Details
-          </button>
+          <button type="submit" className="btn btn-success">Submit Order Details</button>
         </form>
       </div>
     );
@@ -184,22 +172,25 @@ export default function Cart() {
 
   return (
     <div className="container m-auto mt-5 table-responsive table-responsive-sm table-responsive-md">
+      <h2 className="text-white">Order placed by: {userName}</h2>
       <table className="table">
         <thead className="text-success fs-4">
           <tr>
-            <th scope="col">#</th>
-            <th scope="col">Name</th>
-            <th scope="col">Quantity</th>
-            <th scope="col">Option</th>
-            <th scope="col">Amount</th>
-            <th scope="col"></th>
+            <th>#</th>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Quantity</th>
+            <th>Option</th>
+            <th>Amount</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
           {data.map((food, index) => (
             <tr className="text-white" key={index}>
-              <th scope="row">{index + 1}</th>
+              <th>{index + 1}</th>
               <td>{food.name}</td>
+              <td>{food.category}</td> {/* Displaying the category */}
               <td>{food.qty}</td>
               <td>{food.size}</td>
               <td>{food.qty * food.price}</td>
@@ -207,9 +198,7 @@ export default function Cart() {
                 <button
                   type="button"
                   className="btn p-0 text-white"
-                  onClick={() => {
-                    dispatch({ type: "REMOVE", index: index });
-                  }}
+                  onClick={() => dispatch({ type: "REMOVE", index })}
                 >
                   <Delete />
                 </button>
@@ -222,10 +211,7 @@ export default function Cart() {
         <h1 className="fs-2">Total Price: {totalPrice}/-</h1>
       </div>
       <div>
-        <button className="btn bg-success mt-5" onClick={handleCheckOut}>
-          {" "}
-          Check Out{" "}
-        </button>
+        <button className="btn bg-success mt-5" onClick={handleCheckOut}>Check Out</button>
       </div>
     </div>
   );
